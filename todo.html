@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+        integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <script src="https://cdn.staticfile.org/jquery/3.4.0/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <title v-text="title">代辦事項</title>
+    <style>
+        
+    </style>
+</head>
+
+<body>
+
+    <div id="todo">
+
+        <div class='row m-5'>
+            <div class="col-md-6 ">
+                <div class="row mt-3">
+                    <div class="col-md-12 text-center">
+                        <h3>新增項目</h3>
+                        <hr>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <small>輸入新事項新增代辦事項</small>
+                        <div class="form-group input-group-lg">
+                            <label for="newItem">新事項:</label>     
+                            <input type="text" class="form-control " v-model="newItem">
+                            <span class="badge badge-success" v-text="Tag"></span>
+                            <button class="btn btn-primary mt-1" type="button" v-on:click="insertItem">new
+                                Item</button>
+                        </div>
+                        <small>輸入新Tag新增Tag項目</small>
+                        <div class="form-group">
+                            <label for="newTag">新增你的 Tag:</label>
+                            <input type="text" class="form-control" v-model="newTag">
+                            <button class="btn btn-info mt-1" v-on:click="insertTag">Tag</button>
+                        </div>
+                        </form>
+                        <h6>點選Tag，選擇Tag</h6>
+                        <div v-if="Tags.length>0" class="jumbotron">
+                            <h4><span v-for="(tag,index) in Tags" class="badge badge-secondary m-1"
+                                    v-on:click="getTag(tag)" @mouseover="clearTag(tag)">{{tag}}</span> </h4>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+            </div>
+            <div class='col-md-6'>
+                <div class="row mt-3">
+                    <div class="col-md-12 text-center">
+                        <h3>{{title}}</h3>
+                        <hr>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div v-for="(item , index) in items" class="card bg-info text-white mt-2">
+                            <div class="card-body">
+                                <div class="card-text">
+                                    <strong v-text='item.content'></strong>
+                                    <span class="badge badge-light ml-2" v-text="item.tag"></span>
+                                    <small v-text='item.date' class="text-warning m-3" ></small>
+                                    <button class="btn btn-warning" style="float:right;"
+                                        v-on:click="complete(index)">complete</button>
+                                </div>
+
+                            </div>
+                        </div> 
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <hr>
+
+
+
+
+    </div>
+    <!-- <template id="new">
+        <input type="text" id="newItem" placeholder="新事項">
+    </template> -->
+    <script>
+        let tagsArr = $.cookie('Tags') ? $.cookie('Tags').split(',') : [];
+        let itemsArr = $.cookie('Items') ? JSON.parse($.cookie('Items')) : [];
+        console.log(itemsArr);
+        let todo = new Vue({
+            el: '#todo',
+            data: {
+                title: '代辦事項',
+                count: 1,
+                Tags: tagsArr, //tag arr
+                items: itemsArr, //item arr
+                Tag: '', //當下tag 
+                newItem: '',
+                newTag: '',
+                // isActive:false,
+            }, methods: {
+                insertItem: function () {
+                   let time= new Date();
+                   let mm=time.getMonth()+1; //只有這 月 從0開始算
+                   let dd=time.getDate();
+                    obj = {
+                        id: this.count++,
+                        content: this.newItem,
+                        status: false,
+                        tag: this.Tag,
+                        date:mm+'/'+dd,
+                    }
+                    this.items.push(obj);
+                    $.cookie('Items', JSON.stringify(this.items), { expires: 7, path: '/' })
+                    console.log(this.items)
+                    console.log($.cookie('Items'));
+                    this.newItem = '';
+                },
+                insertTag: function () {
+                    this.Tags.push(
+                        this.newTag,
+                    )
+                    $.cookie('Tags', this.Tags, { expires: 7, path: '/' })
+                    console.log(this.Tags)
+                    console.log($.cookie('Tags'))
+                },
+                complete: function (index) {
+                    this.items.splice(index, 1);
+                    $.cookie('Items', JSON.stringify(this.items), { expires: 7, path: '/' })
+                    console.log(index);
+                },
+                getTag: function (tagName) {
+                    this.Tag = tagName;
+                    console.log('getTag:' + tagName);
+                    // console.log(this.obj);
+                },
+                clearTag: function (tagName) {
+                    this.isActive =true;
+                    console.log('getTag:' + tagName);
+                    // console.log(this.obj);
+                },
+            }
+        })
+
+    </script>
+</body>
+</html>
